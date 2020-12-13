@@ -57,4 +57,17 @@ app.post('/add-service', (req, res, next) => {
   })(req, res, next)
 })
 
+app.post('/get-services', (req, res, next) => {
+  passport.authenticate('jwt', (error, user, info) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.services.get(user.org_id)
+        .then((results) => res.json(results))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
 app.listen(8081, () => console.log('app is running'))
