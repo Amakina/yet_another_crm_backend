@@ -7,7 +7,7 @@ const saltRounds = 10;
 const create = ({ user_name, user_email, user_password }, org_id, role) => new Promise((res, rej) => {
   bcrypt.hash(user_password, saltRounds, (err, hash) => {
     const query = 'INSERT INTO users(name, email, password, org_id, role) VALUES(?,?,?,?,?)'
-    connection.query(query, [user_name, user_email, hash, role, org_id], (error) => {
+    connection.query(query, [user_name, user_email, hash, org_id, role], (error) => {
       if (error) {
         if (error.errno === 1062) rej(config.ERRORS.USER_EXISTS)
         else rej(config.ERRORS.UNKNOWN)

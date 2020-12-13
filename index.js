@@ -35,11 +35,24 @@ app.post('/signup', (req, res) => {
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (_, user, info) => {
     if (user.id) {
-      const token = jwt.sign({ id: user.id, role: user.role }, config.SECRET_KEY)
+      const token = jwt.sign({ id: user.id, role: user.role, org_id: user.org_id }, config.SECRET_KEY)
       res.cookie('session_token', token, { httpOnly: true, secure: false });
-      res.status(200).send()
+      res.status(200).send({ token })
     } else {
       res.status(401).send(info)
+    }
+  })(req, res, next)
+})
+
+app.post('/add-service', (req, res, next) => {
+  passport.authenticate('jwt', (error, user, info) => {
+    if (error || !user.id || user.role < config.ROLES.MANAGER) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.services.create(req.body, user.org_id)
+        .then(() => res.sendStatus(200))
+        .catch((error) => res.status(400).json(error))
     }
   })(req, res, next)
 })

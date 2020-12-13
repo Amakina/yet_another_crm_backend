@@ -9,7 +9,7 @@ passport.use(new LocalStrategy(
   (username, password, done) => {
     user.get(username, password)
       .then((user) => {
-        return done(null, { id: user.id, role: user.role })
+        return done(null, { id: user.id, role: user.role, org_id: user.org_id })
       })
       .catch((message) => {
         return done(null, false, { message })
@@ -18,11 +18,11 @@ passport.use(new LocalStrategy(
 ))
 
 const cookieExtractor = (req) => {
-  var token = null;
-  if (req && req.cookies) {
-    token = req.cookies['session_token'];
+  var token = null
+  if (req && req.body && req.body.token) {
+    token = req.body.token
   }
-  return token;
+  return token
 }
 
 passport.use(new JwtStrategy({
