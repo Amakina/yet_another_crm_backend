@@ -24,7 +24,19 @@ const get = (org_id) => new Promise((res, rej) => {
   })
 })
 
+const update = ({ name, ogrn, inn, address, phone, email, id }) => new Promise((res, rej) => {
+  const query = 'UPDATE customers SET name = ?, ogrn = ?, inn = ?, address = ?, phone = ?, email = ? WHERE id = ?'
+  connection.query(query, [name, ogrn, inn, address, phone, email, id ], (error) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res()
+    }
+  })
+})
+
 module.exports = {
   create,
   get,
+  update
 }

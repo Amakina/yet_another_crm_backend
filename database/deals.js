@@ -23,7 +23,33 @@ const get = (org_id) => new Promise((res, rej) => {
   })
 })
 
+
+const update = ({ id, deal_id, deal_date, finish_date, customer_id, status }) => new Promise((res, rej) => {
+  const query = 'UPDATE deals SET deal_id = ?, deal_date = ?, finish_date = ?, customer_id = ?, status = ? WHERE id = ?'
+  connection.query(query, [deal_id, deal_date, finish_date, customer_id, status, id], (error) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res()
+    }
+  })
+})
+
+const remove = ({ id }) => new Promise((res, rej) => {
+  const query = 'DELETE FROM deals WHERE id = ?'
+  connection.query(query, [id], (error) => {
+    if (error) {
+      console.log(error)
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res()
+    }
+  })
+})
+
 module.exports = {
   create,
   get,
+  update,
+  remove
 }

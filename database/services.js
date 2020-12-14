@@ -23,7 +23,31 @@ const get = (org_id) => new Promise((res, rej) => {
   })
 })
 
+const update = ({ code, name, description, price, id }) => new Promise((res, rej) => {
+  const query = 'UPDATE services SET code = ?, name = ?, description = ?, price = ? WHERE id = ?'
+  connection.query(query, [code, name, description, price, id], (error) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res()
+    }
+  })
+})
+
+const remove = ({ id }) => new Promise((res, rej) => {
+  const query = 'DELETE FROM services WHERE id = ?'
+  connection.query(query, [id], (error) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res()
+    }
+  })
+})
+
 module.exports = {
   create,
   get,
+  update,
+  remove
 }

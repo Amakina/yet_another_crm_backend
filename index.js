@@ -57,6 +57,32 @@ app.post('/add-service', (req, res, next) => {
   })(req, res, next)
 })
 
+app.post('/update-service', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.services.update(req.body)
+        .then(() => res.sendStatus(200))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/delete-service', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.services.remove(req.body)
+        .then(() => res.sendStatus(200))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
 app.post('/get-services', (req, res, next) => {
   passport.authenticate('jwt', (error, user) => {
     if (error || !user.id) {
@@ -191,5 +217,117 @@ app.post('/get-payments', (req, res, next) => {
     }
   })(req, res, next)
 })
+
+app.post('/update-payment', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.payments.update(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/delete-payments', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.payments.remove(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+
+app.post('/update-event', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.events.update(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/delete-event', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.events.remove(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/update-customer', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.customers.update(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/update-deal', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.connection.beginTransaction((error) => {
+        if (error) res.status(400).json({ error: config.ERRORS.UNKNOWN })
+        db.deals.update(req.body)
+          .then(() => {
+            db.deals_services.remove(req.body)
+              .then(() => {
+                req.body.services.forEach(element => {
+                  db.deals_services.create(element, req.body.id)
+                    .then(() => {
+                      db.connection.commit((commit_error) => {
+                        if (!commit_error) return
+                        db.connection.rollback(() =>  { throw config.ERRORS.UNKNOWN })
+                      })
+                    })
+                    .catch((ds_error) => db.connection.rollback(() => { throw ds_error }))
+                })
+              })
+              .catch((ds_error) => db.connection.rollback(() => { throw ds_error }))
+          })
+          .catch((d_error) => db.connection.rollback(() => { throw d_error }))
+      })
+      res.sendStatus(200)
+    }
+  })(req, res, next)
+})
+
+app.post('/delete-deal', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.deals.remove(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
 
 app.listen(8081, () => console.log('app is running'))
