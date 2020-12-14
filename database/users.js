@@ -33,7 +33,19 @@ const get = (username, password) => new Promise((res, rej) => {
   })
 })
 
+const getWorkers = (org_id) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM users WHERE org_id = ?'
+  connection.query(query, [org_id], (error, results) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res(results)
+    }
+  })
+})
+
 module.exports = {
   create,
   get,
+  getWorkers,
 }
