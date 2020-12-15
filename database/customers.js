@@ -6,7 +6,7 @@ const create = ({ name, ogrn, inn, address, phone, email }, org_id) => new Promi
   connection.query(query, [name, ogrn, inn, address, phone, email, org_id], (error, results) => {
     if (error) {
       if (error.errno === 1062) rej(config.ERRORS.CUSTOMER_EXISTS)
-      else rej(config.ERRORS.UNKNOWN)
+      else rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results.insertId)
     }
@@ -17,7 +17,7 @@ const get = (org_id) => new Promise((res, rej) => {
   const query = 'SELECT * FROM customers WHERE org_id = ?'
   connection.query(query, [org_id], (error, results) => {
     if (error) {
-      rej(config.ERRORS.UNKNOWN)
+      rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results)
     }
@@ -28,7 +28,7 @@ const update = ({ name, ogrn, inn, address, phone, email, id }) => new Promise((
   const query = 'UPDATE customers SET name = ?, ogrn = ?, inn = ?, address = ?, phone = ?, email = ? WHERE id = ?'
   connection.query(query, [name, ogrn, inn, address, phone, email, id ], (error) => {
     if (error) {
-      rej(config.ERRORS.UNKNOWN)
+      rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)
     } else {
       res()
     }

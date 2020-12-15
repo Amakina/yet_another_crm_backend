@@ -102,26 +102,47 @@ app.post('/add-deal', (req, res, next) => {
       res.sendStatus(403);
     }
     else  {
-      db.connection.beginTransaction((error) => {
-        if (error) res.status(400).json({ error: config.ERRORS.UNKNOWN })
-        db.customers.create(req.body, user.org_id)
-          .then((customer_id) => {
-            db.deals.create(req.body, user.org_id, user.id, customer_id)
-              .then((deal_id) => {
-                req.body.services.forEach(element => {
-                  db.deals_services.create(element, deal_id)
-                    .then(() => {
-                      db.connection.commit((commit_error) => {
-                        if (!commit_error) return
-                        db.connection.rollback(() =>  { throw config.ERRORS.UNKNOWN })
-                      })
-                    })
-                    .catch((ds_error) => db.connection.rollback(() => { throw ds_error }))
-                })
-              })
-              .catch((d_error) => db.connection.rollback(() => { throw d_error }))
+      const connectServices = (services, deal_id) => new Promise((resolve, reject) => {
+        const promises = []
+        services.forEach(element => {
+          promises.push(db.deals_services.create(element, deal_id))
+          /*db.deals_services.create(element, deal_id)
+            .then(() => {
+            })
+            .catch((ds_error) => db.connection.rollback(() => { throw ds_error }))*/
+        })
+        Promise.all(promises)
+          .then(() => {
+            db.connection.commit((commit_error) => {
+              if (!commit_error) { res.sendStatus(200); return }
+              db.connection.rollback(() =>  { throw config.ERRORS.UNKNOWN })
+            })
           })
-          .catch(c_error => db.connection.rollback(() => res.status(400).json({ error: c_error })))
+          .catch((error) => db.connection.rollback(() =>  { throw error }))
+      })
+
+      const createDeal = (customer_id, needRes) => {
+        db.deals.create(req.body, user.org_id, user.id, customer_id)
+          .then((deal_id) => {
+            connectServices(req.body.services, deal_id)
+          })
+          .catch((d_error) => db.connection.rollback(() => { 
+            if (!needRes) throw d_error
+            res.status(400).json({ error: d_error })
+          }))
+      }
+
+      db.connection.beginTransaction((error) => {
+        if (error) { res.status(400).json({ error: config.ERRORS.UNKNOWN }); return }
+        if (req.body.customer_id) {
+          createDeal(req.body.customer_id, true)
+        } else {
+          db.customers.create(req.body, user.org_id)
+            .then((customer_id) => {
+              createDeal(customer_id)
+            })
+            .catch(c_error => db.connection.rollback(() => res.status(400).json({ error: c_error })))
+        }
       })
     }
   })(req, res, next)
