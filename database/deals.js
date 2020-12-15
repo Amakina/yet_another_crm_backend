@@ -13,10 +13,11 @@ const create = ({ deal_id, deal_date, finish_date }, org_id, manager_id, custome
   })
 })
 
-const get = (org_id) => new Promise((res, rej) => {
-  const query = 'SELECT * FROM deals_view WHERE org_id = ?'
-  connection.query(query, [org_id], (error, results) => {
+const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM deals_view WHERE org_id = ?' + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
+      console.log(error)
       rej(`Сделки: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results)

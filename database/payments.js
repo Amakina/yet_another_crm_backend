@@ -13,9 +13,9 @@ const create = ({ receipt, date, sum, selected }, org_id) => new Promise((res, r
   })
 })
 
-const get = (org_id) => new Promise((res, rej) => {
-  const query = 'SELECT id, deal_id, receipt, DATE_FORMAT(date, N\'%d.%m.%Y %H:%i\') AS date, sum FROM payments WHERE org_id = ?'
-  connection.query(query, [org_id], (error, results) => {
+const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
+  const query = 'SELECT id, deal_id, receipt, DATE_FORMAT(date, N\'%d.%m.%Y %H:%i\') AS date, sum FROM payments WHERE org_id = ?' + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       rej(config.ERRORS.UNKNOWN)
     } else {

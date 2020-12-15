@@ -12,9 +12,9 @@ const create = ({ code, name, description, price }, org_id) => new Promise((res,
   })
 })
 
-const get = (org_id) => new Promise((res, rej) => {
-  const query = 'SELECT * FROM services WHERE org_id = ?'
-  connection.query(query, [org_id], (error, results) => {
+const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM services WHERE org_id = ?' + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       rej(config.ERRORS.UNKNOWN)
     } else {

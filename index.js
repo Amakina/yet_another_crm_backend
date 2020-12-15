@@ -49,7 +49,7 @@ app.post('/add-service', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.services.create(req.body, user.org_id)
         .then(() => res.sendStatus(200))
         .catch((error) => res.status(400).json(error))
@@ -62,7 +62,7 @@ app.post('/update-service', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.services.update(req.body)
         .then(() => res.sendStatus(200))
         .catch((error) => res.status(400).json(error))
@@ -75,7 +75,7 @@ app.post('/delete-service', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.services.remove(req.body)
         .then(() => res.sendStatus(200))
         .catch((error) => res.status(400).json(error))
@@ -88,7 +88,7 @@ app.post('/get-services', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.services.get(user.org_id)
         .then((results) => res.json(results))
         .catch((error) => res.status(400).json(error))
@@ -101,7 +101,7 @@ app.post('/add-deal', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       const connectServices = (services, deal_id) => new Promise((resolve, reject) => {
         const promises = []
         services.forEach(element => {
@@ -149,7 +149,7 @@ app.post('/get-customers', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.customers.get(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -162,7 +162,7 @@ app.post('/get-deals', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.deals.get(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -175,7 +175,7 @@ app.post('/get-workers', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.users.getWorkers(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -188,7 +188,7 @@ app.post('/add-event', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.events.create(req.body, user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -201,7 +201,7 @@ app.post('/get-events', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.events.get(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -214,7 +214,7 @@ app.post('/add-payment', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.payments.create(req.body, user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -227,7 +227,7 @@ app.post('/get-payments', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.payments.get(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -240,7 +240,7 @@ app.post('/update-payment', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.payments.update(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -253,7 +253,7 @@ app.post('/delete-payments', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.payments.remove(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -267,7 +267,7 @@ app.post('/update-event', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.events.update(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -280,7 +280,7 @@ app.post('/delete-event', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.events.remove(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -293,7 +293,7 @@ app.post('/update-customer', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.customers.update(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -306,7 +306,7 @@ app.post('/update-deal', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.connection.beginTransaction((error) => {
         if (error) res.status(400).json({ error: config.ERRORS.UNKNOWN })
         db.deals.update(req.body)
@@ -338,7 +338,7 @@ app.post('/delete-deal', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.deals.remove(req.body)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -351,7 +351,7 @@ app.post('/get-not-paid-deals', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.deals.getNotPaid(user.org_id)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
@@ -364,8 +364,33 @@ app.post('/get-regulars', (req, res, next) => {
     if (error || !user.id) {
       res.sendStatus(403);
     }
-    else  {
+    else {
       db.customers.getRegulars(user.org_id)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/filter-query', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else {
+      const { search, table, searchField, handler, sortField } = req.body
+      let query = ''
+      let params = []
+      if (search) {
+       query = `${query} AND ??.?? LIKE ?`
+       params.push(table, searchField.value, `%${search}%`)
+      }
+      if (sortField && sortField.value) {
+        query = `${query} ORDER BY ??.?? ${sortField.dir ? '' : 'DESC'}`
+        params.push(table, sortField.value)
+      }
+      console.log('here', query, params)
+      db[handler].get(user.org_id, query, params)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
     }

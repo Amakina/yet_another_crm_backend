@@ -13,9 +13,9 @@ const create = ({ name, ogrn, inn, address, phone, email }, org_id) => new Promi
   })
 })
 
-const get = (org_id) => new Promise((res, rej) => {
-  const query = 'SELECT * FROM customers WHERE org_id = ?'
-  connection.query(query, [org_id], (error, results) => {
+const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM customers WHERE org_id = ?' + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)
     } else {
