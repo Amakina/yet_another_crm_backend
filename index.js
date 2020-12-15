@@ -106,10 +106,6 @@ app.post('/add-deal', (req, res, next) => {
         const promises = []
         services.forEach(element => {
           promises.push(db.deals_services.create(element, deal_id))
-          /*db.deals_services.create(element, deal_id)
-            .then(() => {
-            })
-            .catch((ds_error) => db.connection.rollback(() => { throw ds_error }))*/
         })
         Promise.all(promises)
           .then(() => {
@@ -350,5 +346,30 @@ app.post('/delete-deal', (req, res, next) => {
   })(req, res, next)
 })
 
+app.post('/get-not-paid-deals', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.deals.getNotPaid(user.org_id)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+app.post('/get-regulars', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else  {
+      db.customers.getRegulars(user.org_id)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
 
 app.listen(8081, () => console.log('app is running'))
