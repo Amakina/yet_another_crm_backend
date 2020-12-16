@@ -5,7 +5,6 @@ const create = ({ deal_id, deal_date, finish_date }, org_id, manager_id, custome
   const query = 'INSERT INTO deals(deal_id, deal_date, finish_date, org_id, manager_id, customer_id) VALUES (?,?,?,?,?,?)'
   connection.query(query, [deal_id, deal_date, finish_date, org_id, manager_id, customer_id], (error, results) => {
     if (error) {
-      console.log(error)
       rej(`Сделки: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results.insertId)
@@ -17,7 +16,6 @@ const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej
   const query = 'SELECT * FROM deals_view WHERE org_id = ?' + extraQuery
   connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
-      console.log(error)
       rej(`Сделки: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results)
@@ -54,7 +52,6 @@ const getNotPaid = (org_id, extraQuery = '', extraParams = []) => new Promise((r
   WHERE deals_view.org_id = ? AND deals_view.id IN (SELECT id FROM not_paid)` + extraQuery
   connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
-      console.log(error)
       rej(`Сделки: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results)

@@ -13,7 +13,7 @@ const create = ({ date, description, selected }, org_id) => new Promise((res, re
 })
 
 const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
-  const query = 'SELECT id, DATE_FORMAT(date, N\'%d.%m.%Y %H:%i\') AS date, description, responsible_id, org_id FROM events WHERE org_id = ?' + extraQuery
+  const query = 'SELECT * FROM events_view WHERE org_id = ?' + extraQuery
   connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       rej(config.ERRORS.UNKNOWN)

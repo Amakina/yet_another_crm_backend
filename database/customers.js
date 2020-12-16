@@ -41,7 +41,6 @@ const getRegulars = (org_id, extraQuery = '', extraParams = []) => new Promise((
   WHERE customers.org_id = ? AND customers.id IN (SELECT id FROM regulars)` + extraQuery
   connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
-      console.log(error)
       rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)
     } else {
       res(results)

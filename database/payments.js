@@ -5,7 +5,6 @@ const create = ({ receipt, date, sum, selected }, org_id) => new Promise((res, r
   const query = 'INSERT INTO payments(receipt, date, sum, deal_id, org_id) VALUES (?,?,?,?,?)'
   connection.query(query, [receipt, date, sum, selected.id, org_id], (error) => {
     if (error) {
-      console.log(error)
       rej(config.ERRORS.UNKNOWN)
     } else {
       res()
@@ -14,7 +13,7 @@ const create = ({ receipt, date, sum, selected }, org_id) => new Promise((res, r
 })
 
 const get = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
-  const query = 'SELECT id, deal_id, receipt, DATE_FORMAT(date, N\'%d.%m.%Y %H:%i\') AS date, sum FROM payments WHERE org_id = ?' + extraQuery
+  const query = 'SELECT * FROM payments_view WHERE org_id = ?' + extraQuery
   connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       rej(config.ERRORS.UNKNOWN)

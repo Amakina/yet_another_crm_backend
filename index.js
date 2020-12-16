@@ -26,8 +26,6 @@ app.post('/signup', (req, res) => {
         .catch(() => res.status(400).json({message: error.message }))
     })
     .catch((error) => {
-      console.log({ body: error })
-
       res.status(401).json({ message: error.message })
     })
 })
@@ -64,11 +62,9 @@ app.post('/edit-user', (req, res, next) => {
       res.sendStatus(403)
     }
     else {
-      console.log(req.body)
       db.users.update(req.body)
         .then((result) => res.json(result))
         .catch((error) => {
-          console.log(error)
           res.status(400).json({ message: error })
         })
     }
@@ -90,7 +86,6 @@ app.post('/login', (req, res, next) => {
 
 app.post('/auth', (req, res, next) => {
   passport.authenticate('jwt', (error, user) => {
-    console.log(req.body)
     if (error || !user.id || (req.body.is_admin && user.role < config.ROLES.MANAGER)) {
       res.sendStatus(403)
     }
@@ -434,12 +429,16 @@ app.post('/filter-query', (req, res, next) => {
       res.sendStatus(403);
     }
     else {
-      const { search, table, searchField, handler, sortField, method } = req.body
+      const { search, table, searchField, handler, sortField, method, filterDate, dataField } = req.body
       let query = ''
       let params = []
       if (search) {
        query = `${query} AND ??.?? LIKE ?`
        params.push(table, searchField.value, `%${search}%`)
+      }
+      if (filterDate && filterDate.length && filterDate[0] && dataField && dataField.value) {
+        query = `${query} AND ??.?? BETWEEN STR_TO_DATE(?, N'%d.%m.%Y') AND STR_TO_DATE(?, N'%d.%m.%Y')`
+        params.push(table, dataField.value, filterDate[0], filterDate[1])
       }
       if (sortField && sortField.value) {
         query = `${query} ORDER BY ??.?? ${sortField.dir ? '' : 'DESC'}`
@@ -447,7 +446,6 @@ app.post('/filter-query', (req, res, next) => {
       }
       let callee = 'get'
       if (method) callee += method
-      console.log('here', query, params)
       db[handler][callee](user.org_id, query, params)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))

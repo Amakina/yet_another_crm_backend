@@ -38,7 +38,12 @@ const remove = ({ id }) => new Promise((res, rej) => {
   const query = 'DELETE FROM services WHERE id = ?'
   connection.query(query, [id], (error) => {
     if (error) {
-      rej(config.ERRORS.UNKNOWN)
+      if (error.errno === 1451) {
+        rej(config.ERRORS.SERVICE_IS_USED)
+      }
+      else {
+        rej(config.ERRORS.UNKNOWN)
+      }
     } else {
       res()
     }
