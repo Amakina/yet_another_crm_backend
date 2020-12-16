@@ -45,6 +45,36 @@ app.post('/create-user', (req, res, next) => {
   })(req, res, next)
 })
 
+app.post('/get-users', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id || user.role < config.ROLES.ADMIN) {
+      res.sendStatus(403)
+    }
+    else {
+      db.users.getAll(user.org_id)
+        .then((result) => res.json(result))
+        .catch((error) => res.status(400).json({ message: error }))
+    }
+  })(req, res, next)
+})
+
+app.post('/edit-user', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id || user.role < config.ROLES.ADMIN) {
+      res.sendStatus(403)
+    }
+    else {
+      console.log(req.body)
+      db.users.update(req.body)
+        .then((result) => res.json(result))
+        .catch((error) => {
+          console.log(error)
+          res.status(400).json({ message: error })
+        })
+    }
+  })(req, res, next)
+})
+
 
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (_, user, info) => {

@@ -33,6 +33,17 @@ const get = (username, password) => new Promise((res, rej) => {
   })
 })
 
+const getAll = (org_id) => new Promise((res, rej) => {
+  const query = 'SELECT id, name, email, role FROM users WHERE org_id = ? AND role < 3'
+  connection.query(query, [org_id], (error, results) => {
+    if (error) {
+      rej(config.ERRORS.EMAIL_NOT_FOUND)
+    } else {
+      res(results)
+    }
+  })
+})
+
 const getWorkers = (org_id) => new Promise((res, rej) => {
   const query = 'SELECT * FROM users WHERE org_id = ?'
   connection.query(query, [org_id], (error, results) => {
@@ -44,8 +55,38 @@ const getWorkers = (org_id) => new Promise((res, rej) => {
   })
 })
 
+const update = (newUser) => new Promise((res, rej) => {
+  const updateQuery = (user) => {
+      const { id, email, password, name, role, } = user
+      const params = [ email, name, role, password, id ]
+      if (!password) params.splice(3, 1)
+      const query = `UPDATE users SET email = ?, name = ?, role = ?${ password ? ', password = ?' : ''} WHERE id = ?`
+      connection.query(query, params, (error) => {
+          if (error) {
+              if (error.errno === 1062) rej(config.ERRORS.USER_EXISTS)
+              else rej(config.ERRORS.UNKNOWN)
+          }
+          else {
+              res()
+          }
+      })
+  }
+  if (!newUser.password) updateQuery(newUser)
+  else {
+      bcrypt.hash(newUser.password, saltRounds, function(err, hash) {
+          if (err) rej(config.ERRORS.UNKNOWN)
+          else {
+              newUser.password = hash
+              updateQuery(newUser)
+          }
+      })
+  }
+})
+
 module.exports = {
   create,
   get,
   getWorkers,
+  getAll,
+  update
 }
