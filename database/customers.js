@@ -35,11 +35,11 @@ const update = ({ name, ogrn, inn, address, phone, email, id }) => new Promise((
   })
 })
 
-const getRegulars = (org_id) => new Promise((res, rej) => {
+const getRegulars = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
   const query = `SELECT customers.*, num_deals, amount, regulars.deal_date FROM customers
   LEFT JOIN regulars ON regulars.id = customers.id
-  WHERE customers.org_id = ? AND customers.id IN (SELECT id FROM regulars)`
-  connection.query(query, [org_id], (error, results) => {
+  WHERE customers.org_id = ? AND customers.id IN (SELECT id FROM regulars)` + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       console.log(error)
       rej(`Заказчики: ${config.ERRORS.UNKNOWN}`)

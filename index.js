@@ -32,6 +32,20 @@ app.post('/signup', (req, res) => {
     })
 })
 
+app.post('/create-user', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id || user.role < config.ROLES.MANAGER) {
+      res.sendStatus(403)
+    }
+    else {
+      db.users.create(req.body, user.org_id, req.body.role)
+        .then(() => res.sendStatus(200))
+        .catch((error) => res.status(400).json({ message: error }))
+    }
+  })(req, res, next)
+})
+
+
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (_, user, info) => {
     if (user.id) {
@@ -40,6 +54,18 @@ app.post('/login', (req, res, next) => {
       res.status(200).send({ token })
     } else {
       res.status(401).send(info)
+    }
+  })(req, res, next)
+})
+
+app.post('/auth', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    console.log(req.body)
+    if (error || !user.id || (req.body.is_admin && user.role < config.ROLES.MANAGER)) {
+      res.sendStatus(403)
+    }
+    else {
+      res.sendStatus(200)
     }
   })(req, res, next)
 })
@@ -378,7 +404,7 @@ app.post('/filter-query', (req, res, next) => {
       res.sendStatus(403);
     }
     else {
-      const { search, table, searchField, handler, sortField } = req.body
+      const { search, table, searchField, handler, sortField, method } = req.body
       let query = ''
       let params = []
       if (search) {
@@ -389,8 +415,10 @@ app.post('/filter-query', (req, res, next) => {
         query = `${query} ORDER BY ??.?? ${sortField.dir ? '' : 'DESC'}`
         params.push(table, sortField.value)
       }
+      let callee = 'get'
+      if (method) callee += method
       console.log('here', query, params)
-      db[handler].get(user.org_id, query, params)
+      db[handler][callee](user.org_id, query, params)
         .then((result) => res.json(result))
         .catch((error) => res.status(400).json(error))
     }

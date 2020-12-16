@@ -30,8 +30,10 @@ passport.use(new JwtStrategy({
   jwtFromRequest: cookieExtractor
 }, (token, done) => {
   try {
+    console.log('token', token)
     return done(null, token);
   } catch (error) {
+    console.log('token', error)
     done(error);
   }
 }))

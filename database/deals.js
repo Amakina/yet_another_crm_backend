@@ -48,11 +48,11 @@ const remove = ({ id }) => new Promise((res, rej) => {
   })
 })
 
-const getNotPaid = (org_id) => new Promise((res, rej) => {
+const getNotPaid = (org_id, extraQuery = '', extraParams = []) => new Promise((res, rej) => {
   const query = `SELECT deals_view.*, not_paid.paid FROM deals_view
   LEFT JOIN not_paid ON not_paid.id = deals_view.id
-  WHERE deals_view.org_id = ? AND deals_view.id IN (SELECT id FROM not_paid)`
-  connection.query(query, [org_id], (error, results) => {
+  WHERE deals_view.org_id = ? AND deals_view.id IN (SELECT id FROM not_paid)` + extraQuery
+  connection.query(query, [org_id, ...extraParams], (error, results) => {
     if (error) {
       console.log(error)
       rej(`Сделки: ${config.ERRORS.UNKNOWN}`)
