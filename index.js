@@ -453,4 +453,99 @@ app.post('/filter-query', (req, res, next) => {
   })(req, res, next)
 })
 
+
+app.post('/get-rfm', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else {
+      db.companies.getRFM(user.org_id)
+        .then((result) => {
+          const maxScore = 5
+          const scoreArray = (array, v) => {
+            let max = maxScore
+            const unique = new Set(array.map(e => e[1][v]))
+            const scores = {}
+            const counts = Math.ceil(unique.size / max)
+            const iter = unique.size / counts
+            for (let i = 0; i < iter; i++) {
+              for (let j = 0; j < counts; j++) {
+                scores[array[i * counts + j][0]] = max
+              }
+              max = Math.max(max - 1, 0);
+            }
+            return { ...scores, r: max }
+          }
+          const toScore = result.reduce((acc, cur, i) => {
+            return { 
+              ...acc, 
+              [i]: { 
+                d: cur.date_diff,
+                f: cur.frequency,
+                m: cur.money,
+              } 
+            }
+          }, {})
+          const dateScore = scoreArray(Object.entries(toScore).sort((a, b) => a[1].d - b[1].d), 'd')
+          const frequencyScore = scoreArray(Object.entries(toScore).sort((a, b) => b[1].f - a[1].f), 'f')
+          const moneyScore = scoreArray(Object.entries(toScore).sort((a, b) => b[1].m - a[1].m), 'm')
+          result = result.map((r, i) => {
+            const date_diff = dateScore[i] || dateScore.r
+            const frequency = frequencyScore[i] || frequencyScore.r
+            const money = moneyScore[i] || moneyScore.r
+            const overall = 3 * date_diff + 2 * frequency + money
+            return { ...r, date_diff, frequency, money, overall }
+          }).sort((a, b) => b.overall - a.overall)
+          res.json(result)
+        })
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+
+app.post('/get-abc', (req, res, next) => {
+  passport.authenticate('jwt', (error, user) => {
+    if (error || !user.id) {
+      res.sendStatus(403);
+    }
+    else {
+      db.companies.getABC(user.org_id)
+        .then((result) => {
+          const overall = result.splice(-1, 1)[0]
+          const meanSum = result.reduce((acc, cur) => acc + cur.mean, 0)
+          console.log(meanSum)
+          result = result.map(e => ({ 
+            ...e, 
+            shareRevenue: e.revenue / overall.revenue,
+            shareMean: e.mean / meanSum,
+            shareProfit: e.profit / overall.profit
+          }))
+
+          const countShares = (array, param, value) => {
+            let share = 0
+            for (let i = 0; i < array.length; i++) {
+              share += array[i][param]
+              if (share < 0.8) array[i][param] = 3
+              else if (share < 0.95) array[i][param] = 2
+              else array[i][param] = 1
+              array[i].overallABC = (array[i].overallABC || 0) + array[i][param] * value
+            }
+            return array
+          }
+
+          result = countShares(result.sort((a, b) => b.shareRevenue - a.shareRevenue), 'shareRevenue', 4)
+          result = countShares(result.sort((a, b) => b.shareMean - a.shareMean), 'shareMean', 3)
+          result = countShares(result.sort((a, b) => b.shareProfit - a.shareProfit), 'shareProfit', 5)
+          
+          res.json(result)
+
+        })
+        .catch((error) => res.status(400).json(error))
+    }
+  })(req, res, next)
+})
+
+
 app.listen(8081, () => console.log('app is running'))

@@ -13,6 +13,30 @@ const create = ({ company_name, company_phone, company_email, company_address, c
   })
 })
 
+const getRFM = (org_id) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM rfm_deals WHERE org_id = ?'
+  connection.query(query, [org_id], (error, results) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res(results)
+    }
+  })
+})
+
+const getABC = (org_id) => new Promise((res, rej) => {
+  const query = 'SELECT * FROM abc_deals WHERE org_id = ?'
+  connection.query(query, [org_id], (error, results) => {
+    if (error) {
+      rej(config.ERRORS.UNKNOWN)
+    } else {
+      res(results)
+    }
+  })
+})
+
 module.exports = {
   create,
+  getRFM,
+  getABC,
 }
